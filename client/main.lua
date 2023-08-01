@@ -108,11 +108,38 @@ RegisterNetEvent('qb-multicharacter:client:chooseChar', function()
     toggleUI(true)
 end)
 
+RegisterNetEvent('qb-multicharacter:client:spawnLastLocation', function(coords)
+    local ped = PlayerPedId()
+    local PlayerData = QBCore.Functions.GetPlayerData()
+    local insideMeta = PlayerData.metadata["inside"]
+    DoScreenFadeOut(500)
+
+    if insideMeta.property_id ~= nil then
+        local property_id = insideMeta.property_id
+        TriggerServerEvent('ps-housing:server:enterProperty', tostring(property_id))
+    else
+        SetEntityCoords(ped, coords.x, coords.y, coords.z)
+        SetEntityHeading(ped, coords.w)
+        FreezeEntityPosition(ped, false)
+        SetEntityVisible(ped, true)
+    end
+
+    TriggerServerEvent('QBCore:Server:OnPlayerLoaded')
+    TriggerEvent('QBCore:Client:OnPlayerLoaded')
+    Wait(2000)
+    DoScreenFadeIn(250)
+end)
+
 RegisterNUICallback('selectCharacter', function(data, cb)
     local cData = data.cData
     DoScreenFadeOut(10)
     TriggerServerEvent('qb-multicharacter:server:loadUserData', cData)
-    toggleUI(false)
+    if Config.SkipSelection then
+        SetNuiFocus(false, false)
+        SetupPreviewCam(false)
+    else
+        toggleUI(false)
+    end
     cb('ok')
 end)
 
@@ -185,4 +212,10 @@ CreateThread(function()
 			break
 		end
 	end
+end)
+
+RegisterNetEvent("qb-multicharacter:client:destroyCam", function ()
+    SetCamActive(cam, false)
+    DestroyCam(cam, true)
+    RenderScriptCams(false, false, 1, true, true)
 end)

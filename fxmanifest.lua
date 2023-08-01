@@ -18,7 +18,7 @@ client_scripts {
 
 server_scripts  {
     '@oxmysql/lib/MySQL.lua',
-    '@qbx-apartments/config.lua',
+    -- '@qbx-apartments/config.lua',
     'server/main.lua'
 }
 
